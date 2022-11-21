@@ -1,4 +1,5 @@
 // TODO Code Review
+// TODO Create return codes
 // TODO Code Cleanup
 
 #include <iostream>
@@ -10,6 +11,7 @@ using namespace std;
 // Global Variable
 char userInput;
 
+// Ignore complex data-flow analysis
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCDFAInspection"
 // Truck Selection
@@ -44,6 +46,10 @@ struct paymentInfo {
     int indexPayment = 0;
     int paymentMode = 0;
     string selectedPayment;
+
+    string cardNumber;
+    string cardExpiry;
+    string cardCVV;
 };
 
 
@@ -282,7 +288,7 @@ int main() {
     struct paymentInfo payment = paymentInfo();
 
     cout << "[Billing Section - Mode of Payment]" << endl;
-    cout << "Please select a mode of payment" << endl;
+    cout << "Please select a mode of payment (Additional Php 50 fee if non-cash)" << endl;
     for (auto & mode : paymentModes) {
         cout << "[" << ++payment.indexPayment << "] " << mode << endl;
     }
@@ -297,13 +303,47 @@ int main() {
     }
     cout << "You have selected [" << payment.selectedPayment << "] as mode of payment" << endl << endl;
 
+    // Clean and ignore trailing '\n' newline for the next getline() to work
+    cin.ignore(256, '\n');
+
+    cout << "[Mode of Payment - " << payment.selectedPayment << "]" << endl;
+    switch (payment.paymentMode) {
+        case 0:
+            cout << "Please print and present the receipt at your chosen branch to process the payment" << endl << endl;
+            break;
+        default:
+            cout << "Enter card number: ";
+            getline(cin, payment.cardNumber);
+            if (payment.cardNumber.length() != 19) {
+                cout << "Please input the correct card number!";
+                return 0;
+            }
+
+            cout << "Enter card expiry date: (MM/YY) ";
+            getline(cin, payment.cardExpiry);
+            // TODO add card expiry date check
+
+            cout << "Enter card CVV: ";
+            cin >> payment.cardCVV;
+            if (payment.cardCVV.length() != 3) {
+                cout << "Please input the correct card CVV!";
+                return 0;
+            }
+
+            cout << "[" << payment.selectedPayment << " Payment Overview" << endl;
+            cout << "Card Number:      ends in " << payment.cardNumber.substr(15, 4) << endl;
+            cout << "Card Expiry Date: " << payment.cardExpiry << endl;
+            cout << "Card CVV:         " << payment.cardCVV << endl << endl;
+    }
+
 
     // Receipt
     // TODO create random receipt number generator
 
     double invoiceRentDays  = ((0.1 * sqrt(invoice.rentDays)) / 0.5) * selection.selectedPrice;
     double invoiceInsurance = (40 * (double) selection.selectedPrice) / 100;
-    double invoicePreTotal  = selection.selectedPrice + invoiceRentDays + invoiceInsurance;
+    const double CARD_FEE = (payment.paymentMode > 0) ? 50 : 0;
+    double invoicePreTotal  = selection.selectedPrice + invoiceRentDays + invoiceInsurance + CARD_FEE;
     double invoiceTax       = invoicePreTotal * 0.10;
     double invoicePostTotal = invoicePreTotal + invoiceTax;
 
@@ -318,14 +358,29 @@ int main() {
          << "       Address:           " << profile.customerAddress << endl
          << "       Phone Number:      " << profile.customerPhone << endl
          << "       Email Address:     " << profile.customerEmail << endl << endl;
-    cout << "   Mode of Payment" << endl
-         << "       Payment via:       " << payment.selectedPayment << endl << endl;
-    cout << "   Misc." << endl
-         << "       Insurance:         Php " << invoiceInsurance << endl << endl;
-    cout << "   Summary" << endl
-         << "       Pre-total:         Php " << invoicePreTotal << endl
-         << "       Tax:               Php " << invoiceTax << endl
-         << "       Final Total:       Php " << invoicePostTotal << endl << endl;
+    if (payment.paymentMode > 0) {
+        cout << "   Mode of Payment" << endl
+             << "       Payment via:       " << payment.selectedPayment << endl
+             << "       Card Number:       ends in " << payment.cardNumber.substr(15, 4) << endl
+             << "       Card Expiry Date:  " << payment.cardExpiry << endl << endl;
+        cout << "   Misc." << endl
+             << "       Insurance:         Php " << invoiceInsurance << endl
+             << "       Card Fee:          Php " << CARD_FEE << endl << endl;
+        cout << "   Summary" << endl
+             << "       Pre-total:         Php " << invoicePreTotal << endl
+             << "       Tax:               Php " << invoiceTax << endl
+             << "       Final Total:       Php " << invoicePostTotal << endl << endl;
+    }
+    else {
+        cout << "   Mode of Payment" << endl
+             << "       Payment via:       " << payment.selectedPayment << endl << endl;
+        cout << "   Misc." << endl
+             << "       Insurance:         Php " << invoiceInsurance << endl << endl;
+        cout << "   Summary" << endl
+             << "       Pre-total:         Php " << invoicePreTotal << endl
+             << "       Tax:               Php " << invoiceTax << endl
+             << "       Final Total:       Php " << invoicePostTotal << endl << endl;
+    }
 
 
     // System Closing
