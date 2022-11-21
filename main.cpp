@@ -10,6 +10,8 @@ using namespace std;
 // Global Variable
 char userInput;
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCDFAInspection"
 // Truck Selection
 struct truckSelection {
     int indexCategory = 0;
@@ -22,6 +24,7 @@ struct truckSelection {
     string selectedType;
     int selectedPrice = 0;
 };
+#pragma clang diagnostic pop
 
 // Billing Section
 struct orderInvoice {
@@ -270,9 +273,9 @@ int main() {
     // TODO Add email check
 
     cout << endl << "[Customer Information Overview]" << endl;
-    cout << "Customer Name: " << profile.customerName << endl;
-    cout << "Customer Address: " << profile.customerAddress << endl;
-    cout << "Customer Phone Number: " << profile.customerPhone << endl;
+    cout << "Customer Name:          " << profile.customerName << endl;
+    cout << "Customer Address:       " << profile.customerAddress << endl;
+    cout << "Customer Phone Number:  " << profile.customerPhone << endl;
     cout << "Customer Email Address: " << profile.customerEmail << endl << endl;
 
 
@@ -306,24 +309,23 @@ int main() {
 
     // Print receipt (invoice, customer invoice, mode of payment)
     cout << "[Truck Rental System - Official Receipt]" << endl;
-    cout << "   Truck Selection" << endl
-         << "       " << selection.selectedCategory << " - " << selection.selectedType << " (Php " << selection.selectedPrice << ")" << endl << endl;
     cout << "   Order Invoice" << endl
-         << "       Days to rent: " << invoice.rentDays << " days (Php " << invoiceRentDays << ")"<< endl
-         << "       Branch Location: " << invoice.selectedBranch << endl << endl;
+         << "       Truck Selection:   " << selection.selectedCategory << " - " << selection.selectedType << " (Php " << selection.selectedPrice << ")" << endl
+         << "       Days to rent:      " << invoice.rentDays << " days (Php " << invoiceRentDays << ")"<< endl
+         << "       Branch Location:   " << invoice.selectedBranch << endl << endl;
     cout << "   Customer Info" << endl
-         << "       Name: " << profile.customerName << endl
-         << "       Address: " << profile.customerAddress << endl
-         << "       Phone Number: " << profile.customerPhone << endl
-         << "       Email Address: " << profile.customerEmail << endl << endl;
+         << "       Name:              " << profile.customerName << endl
+         << "       Address:           " << profile.customerAddress << endl
+         << "       Phone Number:      " << profile.customerPhone << endl
+         << "       Email Address:     " << profile.customerEmail << endl << endl;
     cout << "   Mode of Payment" << endl
-         << "       Payment via: " << payment.selectedPayment << endl << endl;
+         << "       Payment via:       " << payment.selectedPayment << endl << endl;
     cout << "   Misc." << endl
-         << "       Insurance: Php " << invoiceInsurance << endl << endl;
+         << "       Insurance:         Php " << invoiceInsurance << endl << endl;
     cout << "   Summary" << endl
-         << "       Pre-total: Php " << invoicePreTotal << endl
-         << "       Tax: Php " << invoiceTax << endl
-         << "       Final Total: Php " << invoicePostTotal << endl << endl;
+         << "       Pre-total:         Php " << invoicePreTotal << endl
+         << "       Tax:               Php " << invoiceTax << endl
+         << "       Final Total:       Php " << invoicePostTotal << endl << endl;
 
 
     // System Closing
