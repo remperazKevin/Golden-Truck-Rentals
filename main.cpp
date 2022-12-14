@@ -10,57 +10,30 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <random>
 
 
 using namespace std;
 
 
-/*
- * CLion IDE complains that it cannot perform complex data-flow analysis for the structure below.
- * We suppress that for now.
- */
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCDFAInspection"
-struct orderInvoice {
-    // Truck Information
-    string truckCategory   = "";
-    string truckType       = "";
-    int    truckPrice      = 0;
-
-    // Rent Information
-    int    rentQuantity    = 0;
-    int    rentDays        = 0;
-    string rentBranch      = "";
-    int    rentPenalty     = 0;
-
-    // Customer Information
-    string customerName    = "";
-    string customerAddress = "";
-    string customerPhone   = "";
-    string customerEmail   = "";
-
-    // Payment Information
-    string paymentMode     = "";
-    string cardNumber      = "";
-    string cardCVV         = "";
-    int    expiryMonth     = 0;
-    int    expiryYear      = 0;
-};
-#pragma clang diagnostic pop
-
-
 class System {
 private:
-    // First element per array row is designated as the truck category
+    /*
+     * Since we count an array starting from 0, we will use this to our advantage by using these elements of the array
+     * as the categories of our truck list.
+     *
+     * Same goes for our truck prices, we did not put any price on the first element of the array.
+     *
+     * Our program did use two types of arrays, 2-dimensional array and 1-dimensional array.
+     *
+     * Our private variables start with an underscore mainly for separation and formatting.
+     */
     string truckList[5][7] = {
             {
                     "Small Truck",
                     "Mini Truck",
-                    "\u200b",
-                    "\u200b",
-                    "\u200b",
-                    "\u200b",
-                    "\u200b",
             },
             {
                     "Light Truck",
@@ -69,7 +42,6 @@ private:
                     "Pickup",
                     "Panel Van",
                     "Tow Truck",
-                    "\u200b",
             },
             {
                     "Medium Truck",
@@ -87,27 +59,18 @@ private:
                     "Refrigerator Truck",
                     "Tractor Unit",
                     "Tank Truck",
-                    "\u200b",
             },
             {
                     "Very Heavy Truck",
                     "Haul Truck",
                     "Ballast Tractor",
                     "Heavy Hauler",
-                    "\u200b",
-                    "\u200b",
-                    "\u200b",
             },
     };
     int truckPrice[5][7] = {
             {
                     0,
                     1500,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
             },
             {
                     0,
@@ -116,7 +79,6 @@ private:
                     3500,
                     4000,
                     4500,
-                    0,
             },
             {
                     0,
@@ -134,16 +96,12 @@ private:
                     14000,
                     16000,
                     18000,
-                    0,
             },
             {
                     0,
                     20500,
                     30000,
                     25500,
-                    0,
-                    0,
-                    0,
             },
     };
 
@@ -187,38 +145,57 @@ private:
     int _selectedPayment  = 0;
 
 
+protected:
+    struct orderInvoice {
+        // Truck Selection
+        string truckCategory;
+        string truckType;
+        int    truckPrice{};
+
+        // Order Section
+        int    rentQuantity{};
+        int    rentDays{};
+        string rentBranch;
+        int    rentPenalty{};
+
+        // Customer Information
+        string customerName;
+        string customerAddress;
+        string customerPhone;
+        string customerEmail;
+
+        // Payment Information
+        string paymentMode;
+        string cardNumber;
+        string cardCVV;
+        int    expiryMonth{};
+        int    expiryYear{};
+    };
+
+
 public:
-    // One and only public variable used it control system closing
+    // This public variable is used to determine the system closing.
     char _userInput = ' ';
 
-
-    // Order Invoice structure initialization
+    // Create an structure object to use
     struct orderInvoice invoice = orderInvoice();
 
-
-    // System Welcome Message
     static void welcomeMessage() {
-        cout << "|-----------------------------------------|"    << endl
-             << "|                                         |"    << endl
-             << "|     Welcome to Golden Truck Rentals     |"   << endl
-             << "|                                         |"    << endl
-             << "|    \"For all your truck rental needs\"    |" << endl
-             << "|                                         |"    << endl
-             << "|-----------------------------------------|"    << endl
+        cout << "|-----------------------------------------|" << endl
+             << "|                                         |" << endl
+             << "|     Welcome to Golden Truck Rentals     |" << endl
+             << "|                                         |" << endl
+             << "|    [For all your truck rental needs]    |" << endl
+             << "|                                         |" << endl
+             << "|-----------------------------------------|" << endl
              << endl
              << endl;
     }
 
-
-    // Truck Selection
-    /*
-     * This section handles the truck selection of the rental system.
-     *
-     * Contains information on truck categories, types, and prices accordingly.
-     */
     void truckCategory() {
         cout << "Please select a truck category:" << endl;
         while (_indexCategory < 5) {
+            // Print truck categories to console
             cout << "\t> [" << setw(2) << setfill('0') << _indexCategory + 1 << "] "
                  << truckList[_indexCategory][0] << endl;
             _indexCategory++;
@@ -235,19 +212,18 @@ public:
                  << "|    Please only select from the given truck category!    |" << endl
                  << "|---------------------------------------------------------|" << endl
                  << endl
-                 << "-------------------------------------------" << endl;
+                 << "-------------------------------------------"                 << endl;
 
-            // Reset variables before calling truckCategory()
+            // Reset variables used
             _indexCategory    = 0;
             _selectedCategory = 0;
 
-            // Call truckCategory()
+            // Call the method
             truckCategory();
         }
         else {
             invoice.truckCategory = truckList[_selectedCategory][0];
 
-            // Spacer
             cout << endl
                  << "-------------------------------------------" << endl;
         }
@@ -255,20 +231,17 @@ public:
     void truckType() {
         cout << "Please select a truck type:" << endl;
         while (_indexType < 7) {
-            // Skip truck category
             if (truckList[_selectedCategory][_indexType] == invoice.truckCategory) {
-                // Increment the index counter
+                // Skip the first element of the array as it is the category
                 _indexType++;
             }
-                // Skip empty elements in array
-            else if (truckList[_selectedCategory][_indexType] == "\u200b") {
-                // Decrement the index counter
+            else if (truckList[_selectedCategory][_indexType].empty()) {
+                // Decrement the counter and break the loop
                 _indexType--;
-
-                // End the loop
                 break;
             }
             else {
+                //Print truck types to console
                 cout << "\t> [" << setw(2) << setfill('0') << _indexType << "] "
                      << "Php " << truckPrice[_selectedCategory][_indexType]
                      << " - " << truckList[_selectedCategory][_indexType] << endl;
@@ -287,82 +260,71 @@ public:
                  << "|    Please only select from the given truck types!    |" << endl
                  << "|------------------------------------------------------|" << endl
                  << endl
-                 << "-------------------------------------------" << endl;
+                 << "-------------------------------------------"              << endl;
 
-            // Reset variables before calling truckType()
+            // Reset the variables used
             _indexType    = 0;
             _selectedType = 0;
 
-            // Call truckType()
+            // Call the method
             truckType();
         }
         else {
             invoice.truckType  = truckList[_selectedCategory][_selectedType];
             invoice.truckPrice = truckPrice[_selectedCategory][_selectedType];
 
-            // Spacer
             cout << endl
                  << "-------------------------------------------" << endl;
         }
     }
 
-
-    // Billing Section
-    /*
-     * This section handles the bulk of the order invoice.
-     * It contains the following:
-     * - Further Truck Order Invoice
-     * - Branch Location
-     * - Customer Information
-     * - Mode of Payment
-     */
     void billingQuantity() {
         cout << "Enter number of trucks to rent: ";
         cin >> invoice.rentQuantity;
         if (invoice.rentQuantity < 1) {
             cout << endl
-                 << "|------------------------------------|" << endl
-                 << "|    Minimum truck/s to rent: [1]    |" << endl
-                 << "|------------------------------------|" << endl
+                 << "|------------------------------------|"      << endl
+                 << "|    Minimum truck/s to rent: [1]    |"      << endl
+                 << "|------------------------------------|"      << endl
                  << endl
                  << "-------------------------------------------" << endl;
 
-            // Call billingQuantity()
             billingQuantity();
         }
         else {
-            // Spacer
             cout << endl
                  << "-------------------------------------------" << endl;
         }
     }
     void billingDays() {
+        /*
+         * For the number of days to rent, the program's minimum is 7 days,
+         * maximum is 30 with support for exceeding days and a penalty is given.
+         */
+
         cout << "Enter number of days to rent: ";
         cin >> invoice.rentDays;
         if (invoice.rentDays < 7) {
             cout << endl
-                 << "|----------------------------------|" << endl
-                 << "|    Minimum day/s to rent: [7]    |" << endl
-                 << "|----------------------------------|" << endl
+                 << "|----------------------------------|"        << endl
+                 << "|    Minimum day/s to rent: [7]    |"        << endl
+                 << "|----------------------------------|"        << endl
                  << endl
                  << "-------------------------------------------" << endl;
 
-            // Call billingDays()
             billingDays();
         }
         else if (invoice.rentDays > 30) {
             invoice.rentPenalty = invoice.rentDays - 30;
-            cout << "Maximum day/s to rent: [30] (There will be a 1.5% rent penalty for each exceeding day)" << endl;
             cout << endl
                  << "|-------------------------------------------|" << endl
                  << "|        Maximum day/s to rent: [30]        |" << endl
-                 << "|    1.5% penalty for each exceeding day    |"
+                 << "|    1.5% penalty for each exceeding day    |" << endl
                  << "|-------------------------------------------|" << endl
                  << endl
-                 << "-------------------------------------------" << endl;
+                 << "-------------------------------------------"   << endl;
         }
         else {
-            // Spacer
             cout << endl
                  << "-------------------------------------------" << endl;
         }
@@ -370,6 +332,7 @@ public:
     void billingBranch() {
         cout << "Please select a branch location:" << endl;
         while (_indexBranch < 17) {
+            // Print branch locations to console
             cout << "\t> [" << setw(2) << setfill('0') << _indexBranch + 1 << "] "
                  << branchLocations[_indexBranch] << endl;
             _indexBranch++;
@@ -386,27 +349,32 @@ public:
                  << "|    Please only select from the given branches!    |" << endl
                  << "|---------------------------------------------------|" << endl
                  << endl
-                 << "-------------------------------------------" << endl;
+                 << "-------------------------------------------"           << endl;
 
-            // Reset variables before calling billingBranch()
+            // Reset the variables used
             _indexBranch    = 0;
             _selectedBranch = 0;
 
-            // Call billingBranch()
+            // Call the method
             billingBranch();
         }
         else {
             invoice.rentBranch = branchLocations[_selectedBranch];
 
-            // Spacer
             cout << endl
                  << "-------------------------------------------" << endl;
         }
     }
     void billingCustomer() {
+        /*
+         * In order to avoid the user to re-enter the same information again after calling the method because of an
+         * invalid input, we check if the variable where we store the customer information is empty or not.
+         *
+         * If it is not empty, then execute the code inside the statement, if not, then we skip the code.
+         */
+
         // Customer Name
         if (invoice.customerName.empty()) {
-            // Spacer
             cout << endl;
 
             cout << "Enter customer full name: ";
@@ -418,42 +386,40 @@ public:
                      << "|    Please input at least two characters!    |" << endl
                      << "|---------------------------------------------|" << endl
                      << endl
-                     << "-------------------------------------------" << endl;
+                     << "-------------------------------------------"     << endl;
 
-                // Reset variables before calling billingCustomer()
+                // Reset the variables used
                 invoice.customerName = "";
 
-                // Call billingCustomer()
+                // Call the method
                 billingCustomer();
             }
         }
 
         // Customer Address
         if (invoice.customerAddress.empty()) {
-            // Spacer
             cout << endl;
 
             cout << "Enter customer address: ";
             getline(cin, invoice.customerAddress);
             if (invoice.customerAddress.length() < 20) {
                 cout << endl
-                     << "|-------------------------------------|" << endl
-                     << "|    Please input a valid address!    |" << endl
-                     << "|-------------------------------------|" << endl
+                     << "|-------------------------------------|"     << endl
+                     << "|    Please input a valid address!    |"     << endl
+                     << "|-------------------------------------|"     << endl
                      << endl
                      << "-------------------------------------------" << endl;
 
-                // Reset variables before calling billingCustomer()
+                // Reset the variables used
                 invoice.customerAddress = "";
 
-                // Call billingCustomer()
+                // Call the method
                 billingCustomer();
             }
         }
 
-        // Customer Number
+        // Customer Phone
         if (invoice.customerPhone.empty()) {
-            // Spacer
             cout << endl;
 
             cout << "Enter customer phone number: ";
@@ -464,50 +430,53 @@ public:
                      << "|    Please input a valid phone number!    |" << endl
                      << "|------------------------------------------|" << endl
                      << endl
-                     << "-------------------------------------------" << endl;
+                     << "-------------------------------------------"  << endl;
 
-                // Reset variables before calling billingCustomer()
+                // Reset the variables used
                 invoice.customerPhone = "";
 
-                // Call billingCustomer()
+                // Call the method
                 billingCustomer();
             }
         }
 
-
         // Customer E-mail
         if (invoice.customerEmail.empty()) {
-            // Spacer
             cout << endl;
 
             cout << "Enter customer e-mail address: ";
             getline(cin, invoice.customerEmail);
-            // TODO Add email validation check
             if (invoice.customerEmail.length() < 7) {
                 cout << endl
                      << "|--------------------------------------------|" << endl
                      << "|    Please input a valid e-mail address!    |" << endl
                      << "|--------------------------------------------|" << endl
                      << endl
-                     << "-------------------------------------------" << endl;
+                     << "-------------------------------------------"    << endl;
 
-                // Reset variables before calling billingCustomer()
+                // Reset the variables used
                 invoice.customerEmail = "";
 
-                // Call billingCustomer()
+                // Call the method
                 billingCustomer();
             }
             else {
-                // Spacer
                 cout << endl
                      << "-------------------------------------------" << endl;
             }
         }
     }
     void billingPayment() {
+        /*
+         * Similar to our customer information, our code block for mode of payment works in a similar fashion.
+         *
+         * It checks whether the user has made a selection. If not, execute the code. If yes, skip the code.
+         */
+
         if (_selectedPayment == 0) {
             cout << "Please select a mode of payment:" << endl;
             while (_indexPayment < 4) {
+                // Print payment modes to console
                 cout << "\t> [" << setw(2) << setfill('0') << _indexPayment + 1 << "] "
                      << paymentTypes[_indexPayment] << endl;
                 _indexPayment++;
@@ -524,58 +493,62 @@ public:
                      << "|    Please only select from the given mode of payments!    |" << endl
                      << "|-----------------------------------------------------------|" << endl
                      << endl
-                     << "-------------------------------------------" << endl;
+                     << "-------------------------------------------"                   << endl;
 
-                // Reset variables before calling billingPayment()
+                // Reset the variables used
                 _indexPayment    = 0;
                 _selectedPayment = 0;
 
-                // Call billingPayment()
+                // Call the method
                 billingPayment();
             }
             else {
                 invoice.paymentMode = paymentTypes[_selectedPayment];
 
-                // Clean and ignore trailing '\n' newline for the next block of code to work
+                /*
+                 * The way cin works is that it terminates the console input once it detects any whitespace and
+                 * break the following getline() after it. To prevent that behavior, we will ignore whitespaces
+                 * on our cin before proceeding to using the getline() function.
+                 */
                 cin.ignore(256, '\n');
 
-                // Spacer
                 cout << endl
                      << "-------------------------------------------" << endl;
             }
         }
 
-        // Card Information
         if (_selectedPayment > 0) {
-            // Non-cash mode of payment
-
-            // Card Number
             if (invoice.cardNumber.empty()) {
-                // Spacer
+                // Non-Cash payment mode
+                /*
+                 * If the user selected the non-cash mode, the program will now start asking the user for its
+                 * credit card information.
+                 */
+
                 cout << endl;
 
                 cout << "Enter card number: (spaces included) ";
                 getline(cin, invoice.cardNumber);
 
+                // Credit Card Number
                 if (invoice.cardNumber.length() != 19) {
                     cout << endl
                          << "|---------------------------------------------|" << endl
                          << "|    Please input the correct card number!    |" << endl
                          << "|---------------------------------------------|" << endl
                          << endl
-                         << "-------------------------------------------" << endl;
+                         << "-------------------------------------------"     << endl;
 
-                    // Reset variables before calling billingPayment()
+                    // Reset the variables used
                     invoice.cardNumber = "";
 
-                    // Call billingPayment()
+                    // Call the method
                     billingPayment();
                 }
             }
 
-            // Card Expiry Month
+            // Credit Card Expiry Month
             if (invoice.expiryMonth == 0) {
-                // Spacer
                 cout << endl;
 
                 cout << "Enter card expiry month: (MM) ";
@@ -587,19 +560,18 @@ public:
                          << "|    Please input the correct card expiry month!    |" << endl
                          << "|---------------------------------------------------|" << endl
                          << endl
-                         << "-------------------------------------------" << endl;
+                         << "-------------------------------------------"           << endl;
 
-                    // Reset variables before calling billingPayment()
+                    // Reset the variables used
                     invoice.expiryMonth = 0;
 
-                    // Call billingPayment()
+                    // Call the method
                     billingPayment();
                 }
             }
 
-            // Card Expiry Year
+            // Credit Card Expiry Year
             if (invoice.expiryYear == 0) {
-                // Spacer
                 cout << endl;
 
                 cout << "Enter card expiry year: (YY) ";
@@ -613,17 +585,16 @@ public:
                          << endl
                          << "-------------------------------------------" << endl;
 
-                    // Reset variables before calling billingPayment()
+                    // Reset the variables used
                     invoice.expiryYear = 0;
 
-                    // Call billingPayment()
+                    // Call the method
                     billingPayment();
                 }
             }
 
-            // Card CVV
+            // Credit Card CVV
             if (invoice.cardCVV.empty()) {
-                // Spacer
                 cout << endl;
 
                 cout << "Enter card CVV: ";
@@ -637,48 +608,69 @@ public:
                          << endl
                          << "-------------------------------------------" << endl;
 
-                    // Reset variables before calling billingPayment()
+                    // Reset the variables used
                     invoice.cardCVV = "";
 
-                    // Call billingPayment()
+                    // Call the method
                     billingPayment();
                 }
                 else {
-                    // Spacer
                     cout << endl
                          << "-------------------------------------------" << endl;
                 }
             }
         }
         else {
-            // Cash mode of payment
+            // Cash payment mode
+            /*
+             * If the user selected the cash method. They will need to print and present the Official Receipt.
+             *
+             * They will need to process the payment in person.
+             */
+
             cout << endl
                  << "|-------------------------------------------------------------------|" << endl
                  << "|    Please print and present the receipt at your chosen branch.    |" << endl
-                 << "|-------------------------------------------------------------------|" << endl;
-
-            // Spacer
-            cout << endl
-                 << "-------------------------------------------" << endl;
+                 << "|-------------------------------------------------------------------|" << endl
+                 << endl
+                 << "-------------------------------------------"                           << endl;
         }
     }
 
+    void officialReceipt() {
+        /*
+         * The official receipt contains the overview of the following:
+         *
+         * - Order Overview
+         * - Basic Customer Information
+         * - Mode of Payment
+         * - Miscellaneous Fees
+         * - Price Summary
+         */
 
-    // Receipt
-    /*
-     * Below is the overall formula for calculating the summary of invoice:
-     * - MIN and MAX values for receipt number.
-     * - For now we use the old method of creating a random number in between a range.
-     * - Both [0.1] and [0.5] are quantifiers that can be customized
-     *    which dictates how much a truck can be rented for the squared root of any amount of days.
-     * - By default [40] is the percent of our insurance for renting any kind of truck.
-     * - By default [0.12] is the percent of tax.
-     */
-    void officialReceipt() const {
+        /*
+         * Below is the code block for generating random numbers using C++11 random library.
+         *
+         * Courtesy of:
+         * tutorialspoint - Generate random numbers using C++11 random library
+         * https://www.tutorialspoint.com/generate-random-numbers-using-cplusplus11-random-library#
+         */
         const int MIN_CODE   = 111111;
         const int MAX_CODE   = 999999;
-        long int receiptCode = MIN_CODE + (rand() % (MAX_CODE - MIN_CODE + 1));
+        random_device device;
+        mt19937 engine(device());
+        uniform_real_distribution<int> distribution(MIN_CODE, MAX_CODE);
+        long int receiptCode = distribution(engine);
 
+        /*
+         * Below is the code for computing the price summary of the order.
+         *
+         * We compute the rent price per truck individually not as a whole.
+         * We have 1.5% for every succeeding day for renting a truck.
+         * 0.1 and 0.5 are quantifiers on how to compute the price amount per day of renting a truck.
+         * We take 40% of the overall price of all the trucks rented as its insurance as a whole not individually.
+         * We take a 12% sales tax added on the computed price in pre-total.
+         */
         double rentPrice     = invoice.rentQuantity * invoice.truckPrice;
         double rentPenalty   = 0;
         if (invoice.rentPenalty != 0) {
@@ -690,58 +682,66 @@ public:
         double addedTax      = preTotal * 0.12;
         double finalTotal    = preTotal + addedTax;
 
-        // Print receipt (invoice, customer info, mode of payment, misc., and summary)
-        cout << "\tOverview" << endl
-             << "\t\tReceipt Number:    " << receiptCode << endl
+        cout << "\tOverview"                                                                        << endl
+             << "\t\tReceipt Number:    " << receiptCode                                            << endl
              << "\t\tTruck Selection:   " << invoice.truckCategory
              << " - " << invoice.truckType
-             << " (Php " << invoice.truckPrice << ")" << endl
-             << "\t\tTruck Quantity:    " << invoice.rentQuantity << " truck/s " << endl
+             << " (Php " << invoice.truckPrice << ")"                                               << endl
+             << "\t\tTruck Quantity:    " << invoice.rentQuantity << " truck/s "                    << endl
              << "\t\tDays to rent:      " << invoice.rentDays << " day/s (Php " << rentTotal << ")" << endl
-             << "\t\tBranch Location:   " << invoice.rentBranch                                      << endl << endl;
+             << "\t\tBranch Location:   " << invoice.rentBranch                                     << endl
+             << endl;
 
-        cout << "\tCustomer Info"                                                                              << endl
-             << "\t\tName:              " << invoice.customerName                                            << endl
-             << "\t\tAddress:           " << invoice.customerAddress                                         << endl
-             << "\t\tPhone Number:      " << invoice.customerPhone                                           << endl
-             << "\t\tEmail Address:     " << invoice.customerEmail                                   << endl << endl;
+        cout << "\tCustomer Info"                                    << endl
+             << "\t\tName:              " << invoice.customerName    << endl
+             << "\t\tAddress:           " << invoice.customerAddress << endl
+             << "\t\tPhone Number:      " << invoice.customerPhone   << endl
+             << "\t\tEmail Address:     " << invoice.customerEmail   << endl
+             << endl;
 
         if (_selectedPayment > 0) {
-            // Non-cash mode of payment
-            cout << "\tMode of Payment"                                                                        << endl
-                 << "\t\tPayment via:       " << invoice.paymentMode                                         << endl
-                 << "\t\tCard Number:       ends in " << invoice.cardNumber.substr(15, 4)            << endl
+            // Non-Cash payment mode
+            /*
+             * We will not show the entirety of the credit card number, just the last 4 digits of it.
+             *
+             * We will not show the card CVV also for security and privacy reasons.
+             */
+
+            cout << "\tMode of Payment"                                                               << endl
+                 << "\t\tPayment via:       " << invoice.paymentMode                                  << endl
+                 << "\t\tCard Number:       ends in " << invoice.cardNumber.substr(15, 4)     << endl
                  << "\t\tCard Expiry Date:  " << setw(2) << setfill('0') << invoice.expiryMonth
-                 << "/" << invoice.expiryYear                           << endl << endl;
+                 << "/" << invoice.expiryYear                                                         << endl
+                 << endl;
         }
         else {
-            // Cash mode of payment
-            cout << "\tMode of Payment"                                                                        << endl
-                 << "\t\tPayment via:       " << invoice.paymentMode                                 << endl << endl;
+            // Cash payment mode
+
+            cout << "\tMode of Payment"                              << endl
+                 << "\t\tPayment via:       " << invoice.paymentMode << endl
+                 << endl;
         }
 
-        cout << "\tMisc." << endl
+        cout << "\tMiscellaneous Fees"                         << endl
              << "\t\tInsurance:         Php " << rentInsurance << endl;
 
         if (invoice.rentPenalty != 0) {
+            // If the user has exceeded the maximum amount of days, this line of code will be shown in the receipt.
+
             cout << "\t\tPenalty (+" << invoice.rentPenalty << " days)  Php " << rentPenalty << endl;
         }
 
-        // Spacer
         cout << endl;
 
-        cout << "\tSummary" << endl
-             << "\t\tPre-total:         Php " << preTotal << endl
-             << "\t\tTax:               Php " << addedTax << endl
-             << "\t\tFinal Total:       Php " << finalTotal << endl << endl;
-
-        // Spacer
-        cout << endl
+        cout << "\tSummary"                                   << endl
+             << "\t\tPre-total:         Php " << preTotal     << endl
+             << "\t\tTax:               Php " << addedTax     << endl
+             << "\t\tFinal Total:       Php " << finalTotal   << endl
+             << endl
+             << endl
              << "-------------------------------------------" << endl;
     }
 
-
-    // System Closing
     static void closingMessage() {
         cout << "|-----------------------------------------|" << endl
              << "|                                         |" << endl
@@ -752,83 +752,72 @@ public:
              << "|-----------------------------------------|" << endl;
     }
 };
+#pragma clang diagnostic pop
 
 
 int main () {
-    // Initialize System class
+    // Create an system object for our program
     System system;
 
 
-    // System Welcome Message
+    // Print the welcome message
     System::welcomeMessage();
 
 
-    // Truck Selection
     cout << "----------    Truck Selection    ----------" << endl;
     system.truckCategory();
     system.truckType();
-
-
-    // Spacer
     cout << endl << endl;
 
 
-    // Billing Section
     cout << "-----------    Order Section    -----------" << endl;
     system.billingQuantity();
     system.billingDays();
     system.billingBranch();
-
-    // Clean and ignore trailing '\n' newline for the next method to work
+    /*
+     * The way cin works is that it terminates the console input once it detects any whitespace and
+     * break the following getline() after it. To prevent that behavior, we will ignore whitespaces on our cin
+     * before proceeding to using the getline() function.
+     */
     cin.ignore(256, '\n');
     system.billingCustomer();
     system.billingPayment();
-
-
-    // Spacer
     cout << endl << endl;
 
 
-    // Receipt
     cout << "----------    Official Receipt    ---------" << endl;
     system.officialReceipt();
-
-
-    // Spacer
     cout << endl << endl;
 
 
     // System Closing
-    /*
-     * We ask the user if in case they want to rent another type of truck before returning the program
-     */
     cout << "Would like to rent another truck? (Y/N) ";
     cin >> system._userInput;
     if (system._userInput == 'Y' || system._userInput == 'y') {
-        // Reset variables before calling main()
+        // Reset the variable used
         system._userInput = ' ';
 
-        // Spacer
-        cout << endl << endl;
+        // Console spacer
+        cout << endl << endl << endl << endl;
 
-        // Call main()
+        // Call the main() method
         main();
 
-        // Return the program just in case it failed to call main()
+        // In case it does not call the main() method, return 0 the program for redundancy to end the program.
         return 0;
     }
     else {
-        // Spacer
+        // We only check of the user inputs Y or y to the program, any other input will be counted as "no".
         cout << endl
-             << "-------------------------------------------" << endl;
+             << "-------------------------------------------" << endl
+             << endl
+             << endl;
 
-        // Spacer
-        cout << endl << endl;
-
+        // Print the closing message
         System::closingMessage();
     }
 
 
-    // Return the program to close
+    // Finally, return 0 to end the program.
     return 0;
 }
