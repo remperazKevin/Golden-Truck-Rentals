@@ -10,7 +10,6 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
-#include <random>
 
 
 using namespace std;
@@ -648,19 +647,9 @@ public:
          * - Price Summary
          */
 
-        /*
-         * Below is the code block for generating random numbers using C++11 random library.
-         *
-         * Courtesy of:
-         * tutorialspoint - Generate random numbers using C++11 random library
-         * https://www.tutorialspoint.com/generate-random-numbers-using-cplusplus11-random-library#
-         */
         const int MIN_CODE   = 111111;
         const int MAX_CODE   = 999999;
-        random_device device;
-        mt19937 engine(device());
-        uniform_real_distribution<int> distribution(MIN_CODE, MAX_CODE);
-        long int receiptCode = distribution(engine);
+        long int receiptCode = MIN_CODE + (rand() % (MAX_CODE - MIN_CODE + 1));
 
         /*
          * Below is the code for computing the price summary of the order.
