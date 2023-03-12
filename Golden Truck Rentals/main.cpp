@@ -4,16 +4,8 @@
 //
 
 #include <algorithm>
-#include <cctype>
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-#include <chrono>
-#include <ctime>
 #include <iostream>
 #include <random>
-#include <stdexcept>
-#include <vector>
 
 using namespace std;
 
@@ -37,21 +29,6 @@ T check_min_size(string pTgt, size_t pLenSz) {
         puts(errorMessage.insert(8, error.what()).c_str());
         return "";
     }
-    
-    return pTgt;
-}
-template <typename T>
-T check_max_size(string pTgt, size_t pLenSz) {
-    try {
-        if (strlen(pTgt.c_str()) > pLenSz)
-            throw runtime_error("Must be at least " + to_string(pLenSz) + " characters");
-    }
-    catch (runtime_error error) {
-        string errorMessage("[Error: ]\n");
-        puts(errorMessage.insert(8, error.what()).c_str());
-        return "";
-    }
-    
     return pTgt;
 }
 template <typename T>
@@ -67,7 +44,6 @@ T check_min_max_size(string pTgt, size_t pMin, size_t pMax) {
         puts(errorMessage.insert(8, error.what()).c_str());
         return "";
     }
-    
     return pTgt;
 }
 template <typename T>
@@ -84,14 +60,13 @@ T check_min_max(string pTgt, int pMin, int pMax) {
     catch (invalid_argument error) {
         string errorMessage("[Error: ]\n");
         puts(errorMessage.insert(8, "Digits only").c_str());
-        return NULL;
+        return 0;
     }
     catch (runtime_error error) {
         string errorMessage("[Error: ]\n");
         puts(errorMessage.insert(8, error.what()).c_str());
-        return NULL;
+        return 0;
     }
-    
     return stoi(pTgt);
 }
 template <typename T>
@@ -101,7 +76,7 @@ void prompt_input(string pPrmpt, T* pRVal) {
         char buf[sz];
         size_t rVal = sz;
         size_t bufSz = sz;
-        rVal = snprintf(buf, rVal, "%s:", pPrmpt.c_str());
+        rVal = static_cast<size_t>(snprintf(buf, rVal, "%s:", pPrmpt.c_str()));
         if (rVal > 0 && rVal < bufSz)
             puts(buf);
         else
@@ -128,7 +103,7 @@ void print_vector(string pTit, vector<string> pCtnr, T* pRVal, size_t pSz) {
             char buf[pSz];
             size_t rVal = pSz;
             size_t bufSz = pSz;
-            rVal = snprintf(buf, rVal, "\t%02.2d\t%s", i + 1, pCtnr.at(i).c_str());
+            rVal = static_cast<size_t>(snprintf(buf, rVal, "\t%02.2d\t%s", i + 1, pCtnr.at(static_cast<unsigned long>(i)).c_str()));
             if (rVal > 0 && rVal < bufSz)
                 puts(buf);
             else
@@ -207,7 +182,7 @@ public:
         _mDays = pSetVal;
     }
     void setBranchLocation(const string &pSetVal) {
-        _mBrLoc.assign(pSetVal);;
+        _mBrLoc.assign(pSetVal);
     }
     void setPayment(const string &pSetVal) {
         _mPmt.assign(pSetVal);
@@ -499,7 +474,7 @@ public:
         if (account.getPayment().find("Cash") != string::npos) {
             printf("%-31sP%i\n", account.getPayment().c_str(), total);
         }
-        if (account.getPayment().find("Mastercard") != string::npos) {
+        if (account.getPayment().find("MasterCard") != string::npos) {
             printf("%s ", account.getPayment().c_str());
             const string hashedCardNumber = "(**" + account.getCardNumber().substr(account.getCardNumber().length() - 2) + ")";
             printf("%-20s", hashedCardNumber.c_str());
